@@ -77,6 +77,7 @@ class DB
                 GenreId INT NOT NULL,
                 Price DECIMAL(10, 2) NOT NULL,
                 StockQuantity INT DEFAULT 0,
+                imageURL varchar(255),
                 FOREIGN KEY (GenreId) REFERENCES Genres(GenreId)        
             )
         ");
