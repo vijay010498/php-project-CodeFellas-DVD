@@ -7,7 +7,7 @@ class Queries extends DB
     }
 
 
-    public function signUpUser($firstName, $lastName, $email, $password) {
+    public function signUpUser($firstName, $lastName, $email, $password, $address, $phoneNumber) {
         try {
 
             if ($this->userExists($email)) {
@@ -15,13 +15,15 @@ class Queries extends DB
             }
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO Users (firstName, lastName, email, password, userType) VALUES (:firstName, :lastName, :email, :password, 0)"; // 0 =  customer, 1 = Admin
+            $sql = "INSERT INTO Users (firstName, lastName, email, password, address, phoneNumber, userType) VALUES (:firstName, :lastName, :email, :password,:address, :phoneNumber, 0)"; // 0 =  customer, 1 = Admin
             $stmt = $this->pdoConnection->prepare($sql);
 
             $stmt->bindParam(':firstName', $firstName);
             $stmt->bindParam(':lastName', $lastName);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':password', $hashedPassword);
+            $stmt->bindParam(':address', $address);
+            $stmt->bindParam(':phoneNumber', $phoneNumber);
 
             return $stmt->execute();
         } catch (PDOException $e) {

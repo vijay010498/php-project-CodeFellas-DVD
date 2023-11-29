@@ -55,9 +55,72 @@ class DB
                 lastName VARCHAR(255) NOT NULL,
                 email VARCHAR(50) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
+                address VARCHAR(255) NOT NULL,
+                phoneNumber VARCHAR(12) NOT NULL,
                 userType INT 
             )
         ");  // userType =  0 =  customer, 1 = Admin
+
+        // Genres Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS Genres(
+                GenreId INT AUTO_INCREMENT PRIMARY KEY,
+                genreName VARCHAR(15) NOT NULL
+            )
+        ");
+
+        // DVDs Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS DVDS(
+                DVDId INT AUTO_INCREMENT PRIMARY KEY,
+                Title VARCHAR(255) NOT NULL,
+                GenreId INT NOT NULL,
+                Price DECIMAL(10, 2) NOT NULL,
+                StockQuantity INT DEFAULT 0,
+                FOREIGN KEY (GenreId) REFERENCES Genres(GenreId)        
+            )
+        ");
+
+
+        // Orders Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS Orders(
+                OrderId INT AUTO_INCREMENT PRIMARY KEY,
+                UserId INT NOT NULL,
+                orderDate DATETIME NOT NULL ,
+                totalAmount DOUBLE NOT NULL,
+                FOREIGN KEY (UserId) REFERENCES Users(UserId)
+            )
+        ");
+
+
+        // orderItems Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS OrderItems(
+                OrderItemId INT AUTO_INCREMENT PRIMARY KEY,
+                OrderId INT NOT NULL ,
+                DVDId INT NOT NULL,
+                quantity INT,
+                subTotal DOUBLE,
+                FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
+                FOREIGN KEY (DVDId) REFERENCES DVDS(DVDId)
+            )
+        ");
+
+        // Reviews Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS Reviews(
+                ReviewId INT AUTO_INCREMENT PRIMARY KEY ,
+                DVDId INT NOT NULL,
+                UserId INT NOT NULL,
+                Rating DOUBLE NOT NULL,
+                Comment VARCHAR(500),
+                ReviewDate DATETIME,
+                FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                FOREIGN KEY (DVDId) REFERENCES DVDS(DVDId)
+            )
+        ");
+
     }
 
     public function getConnection()
