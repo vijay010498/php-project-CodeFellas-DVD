@@ -1,13 +1,16 @@
 <?php
 require_once("DB.php");
+
 class Queries extends DB
 {
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
 
-    public function signUpUser($firstName, $lastName, $email, $password, $address, $phoneNumber) {
+    public function signUpUser($firstName, $lastName, $email, $password, $address, $phoneNumber)
+    {
         try {
 
             if ($this->userExists($email)) {
@@ -32,7 +35,8 @@ class Queries extends DB
         }
     }
 
-    public function signInUser($email, $password) {
+    public function signInUser($email, $password)
+    {
         try {
             $sql = "SELECT UserId, email, password, userType FROM Users WHERE email = ?";
             $stmt = $this->pdoConnection->prepare($sql);
@@ -63,4 +67,73 @@ class Queries extends DB
 
         return $count > 0;
     }
+
+    protected function createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL)
+    {
+        try {
+            // check for admin user
+            if (!AuthManager::isAdmin()) {
+                return false;
+            }
+            $sql = "INSERT INTO DVDS (Title, GenreId, Price, StockQuantity, imageurl) VALUES (:title, :genreId, :price, :stockQuantity,:imageURL)";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->bindParam(':title', $Title);
+            $stmt->bindParam(':genreId', $GenreId);
+            $stmt->bindParam(':price', $Price);
+            $stmt->bindParam(':stockQuantity', $stockQuantity);
+            $stmt->bindParam(':imageURL', $imageURL);
+
+            return $stmt->execute();
+
+        } catch (PDOException $e) {
+            echo("createDVD: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function deleteDVDs($DVDId) {
+        try{
+            // check for admin user
+            if (!AuthManager::isAdmin()) {
+                return false;
+            }
+
+            $sql = "DELETE FROM DVDS WHERE DVDId = :dvdId";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->bindParam(':dvdId', $DVDId);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }catch (PDOException $e) {
+            echo("deleteDVD: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function updateDVDQuantity($DVDId, $newQuantity)
+    {
+        try {
+            // Check for admin user
+            if (!AuthManager::isAdmin()) {
+                return false;
+            }
+
+            $sql = "UPDATE DVDS SET StockQuantity = :newQuantity WHERE DVDId = :dvdId";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->bindParam(':newQuantity', $newQuantity, PDO::PARAM_INT);
+            $stmt->bindParam(':dvdId', $DVDId, PDO::PARAM_INT);
+
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            echo("updateDVDQuantity: " . $e->getMessage());
+            return false;
+        }
+    }
+
 }
