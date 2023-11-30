@@ -43,4 +43,15 @@ class AuthManager
         session_start();
         return isset($_SESSION['user']) ? $_SESSION['user'] : null;
     }
+
+    public static function isAdmin()
+    {
+        session_start();
+
+        if (isset($_SESSION['user']) && $_SESSION['user']['userType'] === 1) {
+            return true;
+        }
+
+        return false;
+    }
 }
