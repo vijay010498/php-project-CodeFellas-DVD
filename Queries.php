@@ -136,4 +136,74 @@ class Queries extends DB
         }
     }
 
+
+    private function getDVDDetails($DVDId)
+    {
+        try {
+            $sql = "SELECT DVDId, Title, GenreId, Price, StockQuantity, imageURL FROM DVDS WHERE DVDId = ?";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->execute([$DVDId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo("getDVDDetails: " . $e->getMessage());
+            return null;
+        }
+    }
+    protected function addItemIntoCart($DVDId, $quantity) {
+        try {
+            $userId = AuthManager::getUserID();
+            if (!$userId) {
+                throw new ErrorException("User not logged in.");
+            }
+
+            $dvdDetails = $this->getDVDDetails($DVDId);
+            if (!$dvdDetails) {
+                throw new ErrorException("DVD not found.");
+            }
+
+            $sql = "INSERT INTO CartItems (UserId, DVDId, Quantity, Price, TotalPrice) VALUES (:userId, :DVDId, :quantity, :price, :totalPrice)";
+            $stmt = $this->pdoConnection->prepare($sql);
+
+            $price = $dvdDetails['Price'];
+            $totalPrice = $price * $quantity;
+
+            $stmt->bindParam(':userId', $userId);
+            $stmt->bindParam(':DVDId', $DVDId);
+            $stmt->bindParam(':quantity', $quantity);
+            $stmt->bindParam(':price', $price);
+            $stmt->bindParam(':totalPrice', $totalPrice);
+
+            return $stmt->execute();
+
+        }catch (PDOException $e) {
+            echo("addIntoCart: " . $e->getMessage());
+            return false;
+        } catch (ErrorException $E) {
+            echo($E->getMessage());
+        }
+    }
+
+    protected function removeCartItem($cartId)
+    {
+        try {
+            $userId = AuthManager::getUserID();
+            if (!$userId) {
+                throw new ErrorException("User not logged in.");
+            }
+
+            $deleteSql = "DELETE FROM CartItems WHERE CartItemId = :cartId AND UserId = :userId";
+            $deleteStmt = $this->pdoConnection->prepare($deleteSql);
+            $deleteStmt->bindParam(':cartId', $cartId);
+            $deleteStmt->bindParam(':userId', $userId);
+            $deleteStmt->execute();
+
+            return $deleteStmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            echo("removeCartItem: " . $e->getMessage());
+            return false;
+        } catch (ErrorException $E) {
+            echo($E->getMessage());
+        }
+    }
+
 }

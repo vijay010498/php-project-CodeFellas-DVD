@@ -122,6 +122,22 @@ class DB
             )
         ");
 
+
+        // CartItems Table
+        $this->pdoConnection->query("
+            CREATE TABLE IF NOT EXISTS CartItems(
+                CartItemId INT AUTO_INCREMENT PRIMARY KEY,
+                UserId INT NOT NULL,
+                DVDId INT NOT NULL,
+                Quantity INT NOT NULL,
+                Price DECIMAL(10, 2) NOT NULL,
+                TotalPrice DECIMAL(10, 2) NOT NULL,
+                FOREIGN KEY (UserId) REFERENCES Users(UserId),
+                FOREIGN KEY (DVDId) REFERENCES DVDS(DVDId)
+            )
+        ");
+
+
     }
 
     public function getConnection()
