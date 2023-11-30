@@ -1,5 +1,5 @@
 <?php
-
+require_once("Queries.php");
 class Cart extends Queries
 {
 

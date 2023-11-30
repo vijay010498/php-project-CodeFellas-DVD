@@ -2,7 +2,7 @@
 
 class AuthManager
 {
-    public static function loginUser($userId, $email, $userType)
+    public function loginUser($userId, $email, $userType)
     {
         session_start();
 
@@ -30,15 +30,16 @@ class AuthManager
         session_destroy();
 
         setcookie('store_user', '', time() - 3600, '/', '', true, true);
+        return true;
     }
 
-    public static function isLoggedIn()
+    public function isLoggedIn()
     {
         session_start();
         return isset($_SESSION['user']);
     }
 
-    public static function getCurrentUser()
+    public function getCurrentUser()
     {
         session_start();
         return isset($_SESSION['user']) ? $_SESSION['user'] : null;
@@ -55,7 +56,7 @@ class AuthManager
         return false;
     }
 
-    public static function getUserID()
+    public function getUserID()
     {
         session_start();
 
