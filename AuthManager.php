@@ -54,4 +54,17 @@ class AuthManager
 
         return false;
     }
+
+    public static function getUserID()
+    {
+        session_start();
+
+        if (isset($_SESSION['user'])) {
+            return $_SESSION['user']['userId'];
+        } elseif (isset($_COOKIE['store_user'])) {
+            return $_COOKIE['store_user'];
+        }
+
+        return null;
+    }
 }
