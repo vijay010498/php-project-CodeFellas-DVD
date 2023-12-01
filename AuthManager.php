@@ -33,7 +33,7 @@ class AuthManager
         return true;
     }
 
-    public function isLoggedIn()
+    public static function isLoggedIn()
     {
         session_start();
         return isset($_SESSION['user']);
@@ -56,7 +56,7 @@ class AuthManager
         return false;
     }
 
-    public function getUserID()
+    public static function getUserID()
     {
         session_start();
 

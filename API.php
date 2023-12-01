@@ -3,8 +3,11 @@
 
 require_once("Admin.php");
 require_once("Auth.php");
+require_once("AuthManager.php");
+require_once("Cart.php");
 $admin = new Admin();
 $auth = new Auth();
+$cart = new Cart();
 
 
 // POST Apis
@@ -34,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = $_POST['email'];
         $password = $_POST['password'];
 
-        $signInUser = $auth->signInUsr($email,$password);
+        $signInUser = $auth->signInUsr($email, $password);
 
         if ($signInUser) {
             header('Content-Type: application/json');
-            echo json_encode(['message' => 'Created']);
+            echo json_encode(['message' => 'Login Success']);
             http_response_code(200);
             exit();
         } else {
@@ -136,6 +139,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     }
+
+
+    if ($_POST['action'] === "addIntoCart") {
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        }
+        $DVDId = $_POST['DVDId'];
+        $quantity = $_POST['quantity'];
+        $addedIntoCart = $cart->addDVDIntoCart($DVDId, $quantity);
+        if ($addedIntoCart) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Added DVD into Cart']);
+            http_response_code(200);
+            exit();
+        } else {
+            http_response_code(500);
+        }
+    }
+
+    if ($_POST['action'] === "deleteFromCart") {
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First to delete cart']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        }
+        $cartId = $_POST['cartId'];
+        $deletedCart = $cart->deleteDVDFromCart($cartId);
+        if ($deletedCart) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Deleted DVD from Cart']);
+            http_response_code(200);
+            exit();
+        } else {
+            http_response_code(500);
+        }
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -149,6 +194,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             http_response_code(500);
         }
+    }
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/cart') {
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        }
+        $cartItems = $cart->getUsrCartItems();
+        echo json_encode(['cartItems' => $cartItems]);
 
     }
 }

@@ -176,7 +176,7 @@ class Queries extends DB
     }
     protected function addItemIntoCart($DVDId, $quantity) {
         try {
-            $userId = $this->authManager->getUserID();
+            $userId = AuthManager::getUserID();
             if (!$userId) {
                 throw new ErrorException("User not logged in.");
             }
@@ -211,7 +211,7 @@ class Queries extends DB
     protected function removeCartItem($cartId)
     {
         try {
-            $userId = $this->authManager->getUserID();
+            $userId = AuthManager::getUserID();
             if (!$userId) {
                 throw new ErrorException("User not logged in.");
             }
@@ -230,5 +230,25 @@ class Queries extends DB
             echo($E->getMessage());
         }
     }
+
+    protected function getUserCartItems()
+    {
+        try {
+            $userId = AuthManager::getUserID();
+            $sql = "SELECT c.CartItemId, c.DVDId, c.Quantity, c.Price, c.TotalPrice, d.Title, d.GenreId, d.Price AS DVDPrice, d.StockQuantity, d.imageURL 
+                FROM CartItems c
+                INNER JOIN DVDS d ON c.DVDId = d.DVDId
+                WHERE c.UserId = ?";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->execute([$userId]);
+
+            $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $cartItems;
+        } catch (PDOException $e) {
+            echo("getUserCartItems: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching cart items.']);
+        }
+    }
+
 
 }

@@ -10,11 +10,16 @@ class Cart extends Queries
 
     public function addDVDIntoCart($DVDId, $quantity)
     {
-        $this->addItemIntoCart($DVDId, $quantity);
+        return parent::addItemIntoCart($DVDId, $quantity);
     }
 
     public function deleteDVDFromCart($cartId)
     {
-        $this->removeCartItem($cartId);
+        return parent::removeCartItem($cartId);
+    }
+
+    public function getUsrCartItems()
+    {
+        return parent::getUserCartItems();
     }
 }
