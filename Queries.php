@@ -1,15 +1,19 @@
 <?php
 require_once("DB.php");
+require_once("AuthManager.php");
 
 class Queries extends DB
 {
+    private $authManager;
+
     public function __construct()
     {
         parent::__construct();
+        $this->authManager = new AuthManager();
     }
 
 
-    public function signUpUser($firstName, $lastName, $email, $password, $address, $phoneNumber)
+    protected function signUpUser($firstName, $lastName, $email, $password, $address, $phoneNumber)
     {
         try {
 
@@ -18,7 +22,7 @@ class Queries extends DB
             }
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO Users (firstName, lastName, email, password, address, phoneNumber, userType) VALUES (:firstName, :lastName, :email, :password,:address, :phoneNumber, 0)"; // 0 =  customer, 1 = Admin
+            $sql = "INSERT INTO Users (firstName, lastName, email, password, address, phoneNumber, userType) VALUES (:firstName, :lastName, :email, :password,:address, :phoneNumber, 1)"; // 0 =  customer, 1 = Admin
             $stmt = $this->pdoConnection->prepare($sql);
 
             $stmt->bindParam(':firstName', $firstName);
@@ -35,7 +39,7 @@ class Queries extends DB
         }
     }
 
-    public function signInUser($email, $password)
+    protected function signInUser($email, $password)
     {
         try {
             $sql = "SELECT UserId, email, password, userType FROM Users WHERE email = ?";
@@ -46,7 +50,7 @@ class Queries extends DB
             if ($user && password_verify($password, $user['password'])) {
 
                 // use Auth Manager
-                AuthManager::loginUser($user['UserId'], $user['email'], $user['userType']);
+                $this->authManager->loginUser($user['UserId'], $user['email'], $user['userType']);
                 return true;
             } else {
                 return false;
@@ -68,11 +72,32 @@ class Queries extends DB
         return $count > 0;
     }
 
+    protected function createGenre($genreName)
+    {
+        try {
+            // check for admin user
+            if (!$this->authManager->isAdmin()) {
+                return false;
+            }
+
+            $sql = "INSERT INTO Genres (genreName) VALUES (:genreName)";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->bindParam(':genreName', $genreName);
+
+            return $stmt->execute();
+
+        } catch (PDOException $e) {
+            echo("createGenre: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
     protected function createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL)
     {
         try {
             // check for admin user
-            if (!AuthManager::isAdmin()) {
+            if (!$this->authManager->isAdmin()) {
                 return false;
             }
             $sql = "INSERT INTO DVDS (Title, GenreId, Price, StockQuantity, imageurl) VALUES (:title, :genreId, :price, :stockQuantity,:imageURL)";
@@ -94,7 +119,7 @@ class Queries extends DB
     protected function deleteDVDs($DVDId) {
         try{
             // check for admin user
-            if (!AuthManager::isAdmin()) {
+            if (!$this->authManager->isAdmin()) {
                 return false;
             }
 
@@ -120,7 +145,7 @@ class Queries extends DB
     {
         try {
             // Check for admin user
-            if (!AuthManager::isAdmin()) {
+            if (!$this->authManager->isAdmin()) {
                 return false;
             }
 
@@ -205,5 +230,25 @@ class Queries extends DB
             echo($E->getMessage());
         }
     }
+
+    protected function getUserCartItems()
+    {
+        try {
+            $userId = AuthManager::getUserID();
+            $sql = "SELECT c.CartItemId, c.DVDId, c.Quantity, c.Price, c.TotalPrice, d.Title, d.GenreId, d.Price AS DVDPrice, d.StockQuantity, d.imageURL 
+                FROM CartItems c
+                INNER JOIN DVDS d ON c.DVDId = d.DVDId
+                WHERE c.UserId = ?";
+            $stmt = $this->pdoConnection->prepare($sql);
+            $stmt->execute([$userId]);
+
+            $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $cartItems;
+        } catch (PDOException $e) {
+            echo("getUserCartItems: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching cart items.']);
+        }
+    }
+
 
 }

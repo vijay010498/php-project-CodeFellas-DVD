@@ -1,4 +1,5 @@
 <?php
+require_once("Queries.php");
 
 class Admin extends Queries
 {
@@ -8,15 +9,19 @@ class Admin extends Queries
     }
 
     public function createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL) {
-        $this->createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL);
+        return $this->createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL);
+    }
+
+    public function createNewGenre($genreName) {
+        return $this->createGenre($genreName);
     }
 
     public function deleteDvd($DVDId) {
-        $this->deleteDVDs($DVDId);
+        return $this->deleteDVDs($DVDId);
     }
 
     public function updateDVDQunty($DVDId, $newQuantity) {
-        $this->updateDVDQuantity($DVDId, $newQuantity);
+        return $this->updateDVDQuantity($DVDId, $newQuantity);
     }
 
 

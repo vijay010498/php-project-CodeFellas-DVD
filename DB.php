@@ -33,7 +33,6 @@ class DB
 
             // init tables
             $this->initTables();
-            echo "connected Successfully to $dbName";
 
         } catch (PDOException $e) {
             die("Connection failed: " . $e->getMessage());
