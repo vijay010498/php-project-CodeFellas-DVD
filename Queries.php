@@ -250,5 +250,100 @@ class Queries extends DB
         }
     }
 
+    public function getDVD()
+    {
+       try{
+         //query to retrieve all data from DVD table
+         $query = 'SELECT D.Title,D.Price,D.imageURL, Genres.genreName
+         FROM DVDS AS D
+         JOIN Genres ON D.GenreId = Genres.GenreId;';
+         $results = $this->pdoConnection->query($query);
+         $rows = $results->fetchAll(PDO::FETCH_ASSOC);
+         return $rows; 
+         
+    } catch (PDOException $e) {
+        echo("getDVDDetails: " . $e->getMessage());
+        return json_encode(['error' => 'An error occurred while fetching items.']);
+    }
+    }
+
+    public function getDVDOne($dvd_id)
+    {
+        try{
+         // Retrieve DVD details from the database
+         $query = "SELECT D.*, R.Rating, R.Comment, R.ReviewDate FROM DVDS AS D JOIN Reviews AS R ON D.DVDId = R.DVDId WHERE D.DVDId = ?";
+         $results = $this->pdoConnection->prepare($query);
+         $results->execute([$dvd_id]);
+         $rows = $results->fetchAll(PDO::FETCH_ASSOC);
+         return $rows;
+          
+        } catch (PDOException $e) {
+            echo("getDVDOneDetails: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching item.']);
+        }
+    }
+
+    public function getCartItemsIntoCheckout($user_id)
+    {
+        try {
+         // Retrieve DVD details from the CartItem database
+         $query = "SELECT * FROM CartItems WHERE userId = ?";
+         $results = $this->pdoConnection->prepare($query);
+         $results->execute([$user_id]);
+         $rows = $results->fetchAll(PDO::FETCH_ASSOC);
+         return $rows;
+         
+        } catch (PDOException $e) {
+            echo("getCartItemsIntoCheckout: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching cart items to checkout.']);
+        }
+    
+    }
+
+    public function saveOrdersintoDatabase($user_id)
+    {
+        try {
+        $cartItem = $this->getCartItemsIntoCheckout($user_id);
+        if (!$cartItem) {
+            throw new ErrorException("Cart is Empty.");
+        }
+
+        $totalPrice = 0;
+        echo count($cartItem);
+        // Loop through the array and add prices to the total
+        for ($i = 0; $i < count($cartItem); $i++) {
+            $totalPrice += $cartItem[$i]['TotalPrice'];
+        }
+        $sql = "INSERT INTO Orders (UserId,orderDate,totalAmount) VALUES (:UserId, :orderDate, :totalAmount)";
+        $stmt = $this->pdoConnection->prepare($sql);
+
+        
+        $total_amount= $totalPrice;
+        //getting current date
+        $order_date = date("Y-m-d H:i:s");
+    
+        $stmt->bindParam(':UserId', $user_id);
+        $stmt->bindParam(':orderDate', $order_date);
+        $stmt->bindParam(':totalAmount', $total_amount);
+
+        $stmt->execute();
+
+        $orderId =$this->pdoConnection->lastInsertId();
+        for ($i = 0; $i < count($cartItem); $i++) {
+            $insertOrderItems = "INSERT INTO OrderItems (OrderId,DVDId,quantity,subTotal) VALUES (:OrderId,:DVDId,:quantity,:subTotal)";
+            $insertOrderItems = $this->pdoConnection->prepare($insertOrderItems);
+            $insertOrderItems->bindParam(':OrderId', $orderId);
+            $insertOrderItems->bindParam(':DVDId', $cartItem[$i]['DVDId']);
+            $insertOrderItems->bindParam(':quantity', $cartItem[$i]['Quantity']);
+            $insertOrderItems->bindParam(':subTotal', $cartItem[$i]['TotalPrice']);
+            $insertOrderItems->execute();
+        }
+        return $orderId;
+    }  catch (PDOException $e) {
+        echo("saveOrderDetailsIntoDatabase: " . $e->getMessage());
+        return json_encode(['error' => 'An error occurred while placing an order.']);
+    }
+}
+
 
 }

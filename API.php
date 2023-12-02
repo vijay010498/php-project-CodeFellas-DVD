@@ -5,9 +5,17 @@ require_once("Admin.php");
 require_once("Auth.php");
 require_once("AuthManager.php");
 require_once("Cart.php");
+require_once("Home.php");
+require_once("Details.php");
+require_once("Checkout.php");
+require_once("UserOrders.php");
 $admin = new Admin();
 $auth = new Auth();
 $cart = new Cart();
+$home = new Home();
+$details = new Details();
+$checkout = new Checkout();
+$userOrder = new UserOrders();
 
 
 // POST Apis
@@ -206,5 +214,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $cartItems = $cart->getUsrCartItems();
         echo json_encode(['cartItems' => $cartItems]);
 
+    }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/home') {        
+        $items = $home->fetchValues();
+        echo json_encode(['items' => $items]);
+    }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/details') {
+        if (!empty($_GET["DVDId"])) {
+            $detail = $details->dvdDetails($_GET["DVDId"]);            
+            echo json_encode(['detail' => $detail]);
+        }
+        else{
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please provide DVD id']);            
+            http_response_code(401);
+            exit();
+        }      
+        
+    }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/checkout') {
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        } else {
+            $userId = AuthManager::getUserID();
+            if($userId != null){
+                $items = $checkout->getCartItemsIntoCheckout($userId);            
+                echo json_encode(['items' => $items]);
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['message' => 'Please Login First']);
+                exit();
+            }
+        }      
+    }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/placeOrder') {
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        } else {
+            $userId = AuthManager::getUserID();
+            if($userId != null){
+                $items = $userOrder->saveOrdersintoDatabase($userId);            
+                echo json_encode(['items' => $items]);
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['message' => 'Please Login First']);
+                exit();
+            }
+        }      
     }
 }
