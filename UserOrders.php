@@ -8,7 +8,7 @@ class UserOrders extends Queries
     }
     public function userOrderPage($user_id)
     {
-        $this->saveOrdersintoDatabase($user_id);
+        return $this->saveOrdersintoDatabase($user_id);
     }
     
 }

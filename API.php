@@ -9,6 +9,7 @@ require_once("Home.php");
 require_once("Details.php");
 require_once("Checkout.php");
 require_once("UserOrders.php");
+require_once("invoice_pdf.php");
 $admin = new Admin();
 $auth = new Auth();
 $cart = new Cart();
@@ -16,7 +17,7 @@ $home = new Home();
 $details = new Details();
 $checkout = new Checkout();
 $userOrder = new UserOrders();
-
+$invoice = new Invoice();
 
 // POST Apis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -245,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             $userId = AuthManager::getUserID();
             if($userId != null){
-                $items = $checkout->getCartItemsIntoCheckout($userId);            
+                $items = $checkout->chekoutPage($userId);            
                 echo json_encode(['items' => $items]);
             } else {
                 header('Content-Type: application/json');
@@ -265,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         } else {
             $userId = AuthManager::getUserID();
             if($userId != null){
-                $items = $userOrder->saveOrdersintoDatabase($userId);            
+                $items = $userOrder->userOrderPage($userId);            
                 echo json_encode(['items' => $items]);
             } else {
                 header('Content-Type: application/json');
@@ -274,4 +275,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }      
     }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/checkout/order') {
+        echo "hi";exit;
+        if (!AuthManager::isLoggedIn()) {
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Please Login First']);
+            AuthManager::logoutUser();
+            http_response_code(401);
+            exit();
+        } else {
+            if (!empty($_GET["orderId"])) {
+                $userId = AuthManager::getUserID();
+                $orderId = $_GET["orderId"];
+                if($userId != null){
+                    $items = $invoice->getpdfDetails($userId, $orderId);            
+                    echo json_encode(['items' => $items]);
+                } else {
+                    header('Content-Type: application/json');
+                    echo json_encode(['message' => 'Please Login First']);
+                    exit();
+                }
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode(['message' => 'Please provide order id']);
+                exit();
+            }
+        }      
+    }
+
+
 }

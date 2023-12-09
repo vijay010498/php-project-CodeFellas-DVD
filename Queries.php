@@ -299,6 +299,54 @@ class Queries extends DB
         }
     
     }
+    public function pdfGeneration($user_id){
+        try {
+            // $userId = AuthManager::getUserID();
+            // if (!$userId) {
+            //     throw new ErrorException("User not logged in.");
+            // }
+            $query ="SELECT `firstName`, `lastName`,`phoneNumber`, `address` FROM Users WHERE userId =?";
+            $results = $this->pdoConnection->prepare($query);
+            $results->execute([$user_id]);
+            $rows = $results->fetchAll(PDO::FETCH_ASSOC);
+            return $rows;
+        } catch (PDOException $e) {
+            echo("getCartItemsIntoCheckout: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching cart items to checkout.']);
+        }
+
+    }
+    public function pdfOrderTable($user_id,$order_id){
+        try {
+            // $userId = AuthManager::getUserID();
+            // if (!$userId) {
+            //     throw new ErrorException("User not logged in.");
+            // }
+            $query ="SELECT r.Title,r.Price,
+            re.OrderId As OrderId,
+            re.DVDId AS DVDId,
+            re.quantity As OrderQuantity,
+            re.subTotal As SubTotal
+            FROM
+            Users c
+            INNER JOIN
+            Orders o ON c.UserId= o.UserId
+            INNER JOIN
+            OrderItems re ON re.OrderId= o.OrderId
+            INNER JOIN
+            DVDS r ON re.DVDId = r.DVDId
+           WHERE
+          c.userId = ? AND o.OrderId=?";
+            $results = $this->pdoConnection->prepare($query);
+            $results->execute([$user_id,$order_id]);
+            $rows = $results->fetchAll(PDO::FETCH_ASSOC);
+            return $rows;
+        } catch (PDOException $e) {
+            echo("getCartItemsIntoCheckout: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching cart items to checkout.']);
+        }
+
+    }
 
     public function saveOrdersintoDatabase($user_id)
     {
