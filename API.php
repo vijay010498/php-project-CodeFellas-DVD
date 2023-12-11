@@ -277,7 +277,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/checkout/order') {
-        echo "hi";exit;
         if (!AuthManager::isLoggedIn()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Please Login First']);
