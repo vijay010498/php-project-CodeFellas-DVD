@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     }
 
-    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/home') {        
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/home') {
         $items = $home->fetchValues();
         echo json_encode(['items' => $items]);
     }
