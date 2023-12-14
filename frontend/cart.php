@@ -60,7 +60,34 @@
 
 
 <script>
-    fetchCartItems();
+
+    checkLoginStatus();
+
+    function checkLoginStatus() {
+        const loginXhr = new XMLHttpRequest();
+        loginXhr.open('GET', '/group-project-DVD-store/API.php/loginstatus', true);
+
+        loginXhr.onreadystatechange = function () {
+            if (loginXhr.readyState === XMLHttpRequest.DONE) {
+                if (loginXhr.status === 200) {
+                    const response = JSON.parse(loginXhr.responseText);
+                    if (response.loginStatus) {
+                        fetchCartItems()
+                    } else {
+                        window.location.replace("login.php");
+                    }
+                } else {
+                    console.error('Error:', loginXhr.status);
+                }
+            }
+        };
+
+        loginXhr.send();
+
+    }
+
+
+
 
     function fetchCartItems() {
         const cartItemsXhr = new XMLHttpRequest();

@@ -6,9 +6,9 @@ class UserOrders extends Queries
     {
         parent::__construct();
     }
-    public function userOrderPage($user_id)
+    public function checkoutAndPlaceOrder($user_id)
     {
-        return $this->saveOrdersintoDatabase($user_id);
+        return $this->createOrderAndClearCart($user_id);
     }
     
 }

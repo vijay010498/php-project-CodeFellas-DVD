@@ -39,7 +39,8 @@ include('footers.php');
                                         <p class="product-genre">${dvd.genreName}</p>
                                         <p class="product-price">$${dvd.Price}</p>
                                     </div>
-                                    <button class="btn buy" type="button">Buy</button>
+                                    <a href="product.php" ><button class="btn buy" type="button">Buy</button></a>
+
                                 </div>
                             `;
 

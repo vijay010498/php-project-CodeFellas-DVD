@@ -20,7 +20,6 @@ include('headers.php');
         <button class="btn w-100 mt-2" style="background-color:rgb(227, 227, 227);color:black;" type="button" onclick="changeForms('signup')">Sign Up</button>
     </form>
 
-    <!-- Signup form -->
     <form id="signupForm" <?php if ($changeForm === 'signup') echo 'style="display:block;"'; else echo 'style="display:none;"'; ?>>
         <h1 class="h3 mb-3 fw-normal mt-4">Sign Up</h1>
         <div class="row">

@@ -76,7 +76,6 @@
 
 
 
-    <!-- Genre Form -->
     <form method="post" <?php if ($formToggle === 'genre') echo 'style="display:block;"'; else echo 'style="display:none;"'; ?>>
         <div class="container mt-5">    
             <h2 class="mb-4 text-center">Add Genre</h2>

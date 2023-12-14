@@ -102,7 +102,11 @@ include('footers.php');
                     console.log(button);
                     button.innerHTML = "Remove from Cart";
                     existingCartItemsMap.set(DVDId, true);
-                } else {
+                } else if (this.status === 401) {
+                    window.location.replace("login.php");
+                }
+
+                else {
                     console.error('Error:', this.status);
                 }
             }

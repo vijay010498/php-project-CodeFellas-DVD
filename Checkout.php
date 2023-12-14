@@ -6,7 +6,7 @@ class Checkout extends Queries
     {
         parent::__construct();
     }
-    public function chekoutPage($user_id)
+    public function checkoutAndPlaceOrder($user_id)
     {
         return $this->getCartItemsIntoCheckout($user_id);
        

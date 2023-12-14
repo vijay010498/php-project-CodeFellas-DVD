@@ -121,8 +121,12 @@ class Invoice extends Queries{
         $pdf->body($result);
         $pdf->invoice_table($value);
         $pdf->Output();
+
+        $pdf->Output('D');
+
+        exit();
     }
 }
 // $invoice = new Invoice();
-// $invoice->getpdfDetails(1);
+// $invoice->getpdfDetails(1, 54);
 ?>
