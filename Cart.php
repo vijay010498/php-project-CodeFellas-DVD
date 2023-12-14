@@ -13,9 +13,9 @@ class Cart extends Queries
         return parent::addItemIntoCart($DVDId, $quantity);
     }
 
-    public function deleteDVDFromCart($cartId)
+    public function deleteDVDFromCart($DVDId)
     {
-        return parent::removeCartItem($cartId);
+        return parent::removeCartItem($DVDId);
     }
 
     public function getUsrCartItems()

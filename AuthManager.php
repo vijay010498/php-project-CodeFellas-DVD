@@ -1,10 +1,13 @@
 <?php
 
+
 class AuthManager
 {
     public function loginUser($userId, $email, $userType)
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $userDetails = [
             "userId" => $userId,
@@ -12,7 +15,6 @@ class AuthManager
             "userType" => $userType
         ];
 
-        // Store user details in the session
         $_SESSION["user"] = $userDetails;
 
         $expiry = time() + (30 * 24 * 60 * 60);
@@ -23,7 +25,9 @@ class AuthManager
 
     public static function logoutUser()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         $_SESSION = [];
 
@@ -35,19 +39,27 @@ class AuthManager
 
     public static function isLoggedIn()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         return isset($_SESSION['user']);
     }
 
     public function getCurrentUser()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         return isset($_SESSION['user']) ? $_SESSION['user'] : null;
     }
 
     public static function isAdmin()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         if (isset($_SESSION['user']) && $_SESSION['user']['userType'] === 1) {
             return true;
@@ -58,7 +70,9 @@ class AuthManager
 
     public static function getUserID()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
         if (isset($_SESSION['user'])) {
             return $_SESSION['user']['userId'];
@@ -68,4 +82,5 @@ class AuthManager
 
         return null;
     }
+
 }

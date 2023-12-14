@@ -162,6 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(401);
             exit();
         }
+        echo $data['DVDId'];
         $DVDId = $data['DVDId'];
         $quantity = $data['quantity'];
         $addedIntoCart = $cart->addDVDIntoCart($DVDId, $quantity);
@@ -183,8 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(401);
             exit();
         }
-        $cartId = $data['cartId'];
-        $deletedCart = $cart->deleteDVDFromCart($cartId);
+        $DVDId = $data['DVDId'];
+        $deletedCart = $cart->deleteDVDFromCart($DVDId);
         if ($deletedCart) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Deleted DVD from Cart']);

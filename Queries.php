@@ -208,7 +208,7 @@ class Queries extends DB
         }
     }
 
-    protected function removeCartItem($cartId)
+    protected function removeCartItem($DVDId)
     {
         try {
             $userId = AuthManager::getUserID();
@@ -216,9 +216,9 @@ class Queries extends DB
                 throw new ErrorException("User not logged in.");
             }
 
-            $deleteSql = "DELETE FROM CartItems WHERE CartItemId = :cartId AND UserId = :userId";
+            $deleteSql = "DELETE FROM CartItems WHERE DVDId = :dvdID AND UserId = :userId";
             $deleteStmt = $this->pdoConnection->prepare($deleteSql);
-            $deleteStmt->bindParam(':cartId', $cartId);
+            $deleteStmt->bindParam(':dvdID', $DVDId);
             $deleteStmt->bindParam(':userId', $userId);
             $deleteStmt->execute();
 
@@ -254,7 +254,7 @@ class Queries extends DB
     {
        try{
          //query to retrieve all data from DVD table
-         $query = 'SELECT D.Title,D.Price,D.imageURL, Genres.genreName
+         $query = 'SELECT D.DVDId, D.Title,D.Price,D.imageURL, Genres.genreName
          FROM DVDS AS D
          JOIN Genres ON D.GenreId = Genres.GenreId;';
          $results = $this->pdoConnection->query($query);
