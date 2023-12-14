@@ -217,7 +217,7 @@ include('footers.php');
             }
         }
     };
-    xmlHttp.open("GET", '/group-project-DVD-store/API.php/home', true);
+    xmlHttp.open("GET", '/group-project-DVD-store/API.php/dvds', true);
     xmlHttp.send();
 </script>
 
