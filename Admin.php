@@ -8,8 +8,8 @@ class Admin extends Queries
         parent::__construct();
     }
 
-    public function createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL) {
-        return $this->createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL);
+    public function createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL,$description) {
+        return $this->createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL,$description);
     }
 
     public function createNewGenre($genreName) {

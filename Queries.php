@@ -93,21 +93,21 @@ class Queries extends DB
     }
 
 
-    protected function createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL)
+    protected function createDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL, $description)
     {
         try {
             // check for admin user
             if (!$this->authManager->isAdmin()) {
                 return false;
             }
-            $sql = "INSERT INTO DVDS (Title, GenreId, Price, StockQuantity, imageurl) VALUES (:title, :genreId, :price, :stockQuantity,:imageURL)";
+            $sql = "INSERT INTO DVDS (Title, GenreId, Price, StockQuantity, imageurl, description) VALUES (:title, :genreId, :price, :stockQuantity,:imageURL,:description)";
             $stmt = $this->pdoConnection->prepare($sql);
             $stmt->bindParam(':title', $Title);
             $stmt->bindParam(':genreId', $GenreId);
             $stmt->bindParam(':price', $Price);
             $stmt->bindParam(':stockQuantity', $stockQuantity);
             $stmt->bindParam(':imageURL', $imageURL);
-
+            $stmt->bindParam(':description', $description);
             return $stmt->execute();
 
         } catch (PDOException $e) {
