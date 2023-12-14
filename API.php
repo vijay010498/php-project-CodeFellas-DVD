@@ -21,14 +21,16 @@ $invoice = new Invoice();
 
 // POST Apis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $action = $data['action'];
 
-    if ($_POST['action'] === "signUpNewUser") {
-        $firstName = $_POST['firstName'];
-        $lastName = $_POST['lastName'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $address = $_POST['address'];
-        $phoneNumber = $_POST['phoneNumber'];
+    if ($action === "signUpNewUser") {
+        $firstName = $data['firstName'];
+        $lastName = $data['lastName'];
+        $email = $data['email'];
+        $password = $data['password'];
+        $address = $data['address'];
+        $phoneNumber = $data['phoneNumber'];
 
         $createdNewUser = $auth->signUpNewUser($firstName, $lastName, $email, $password, $address, $phoneNumber);
 
@@ -42,9 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($_POST['action'] === "signInUsr") {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+
+
+    if ($action === "signInUsr") {
+        $email = $data['email'];
+        $password = $data['password'];
 
         $signInUser = $auth->signInUsr($email, $password);
 
@@ -58,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($_POST['action'] === 'createGenre') {
+    if ($action === 'createGenre') {
 
         if (!AuthManager::isAdmin()) {
             header('Content-Type: application/json');
@@ -66,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(401);
             exit();
         }
-        $genreName = $_POST['genreName'];
+        $genreName = $data['genreName'];
 
         $created = $admin->createNewGenre($genreName);
 
@@ -80,18 +84,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($_POST['action'] === 'createDVD') {
+    if ($action === 'createDVD') {
         if (!AuthManager::isAdmin()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Need Admin Access, Please login as Admin']);
             http_response_code(401);
             exit();
         }
-        $Title = $_POST['Title'];
-        $GenreId = $_POST['GenreId'];
-        $Price = $_POST['Price'];
-        $stockQuantity = $_POST['stockQuantity'];
-        $imageURL = $_POST['imageURL'];
+        $Title = $data['Title'];
+        $GenreId = $data['GenreId'];
+        $Price = $data['Price'];
+        $stockQuantity = $data['stockQuantity'];
+        $imageURL = $data['imageURL'];
 
         $created = $admin->createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL);
         if ($created) {
@@ -106,14 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    if ($_POST['action'] === 'deleteDVD') {
+    if ($action === 'deleteDVD') {
         if (!AuthManager::isAdmin()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Need Admin Access, Please login as Admin']);
             http_response_code(401);
             exit();
         }
-        $DVDId = $_POST['DVDId'];
+        $DVDId = $data['DVDId'];
         $deleted = $admin->deleteDvd($DVDId);
         if ($deleted) {
             header('Content-Type: application/json');
@@ -127,15 +131,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    if ($_POST['action'] === 'updateDVDQuantity') {
+    if ($action === 'updateDVDQuantity') {
         if (!AuthManager::isAdmin()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Need Admin Access, Please login as Admin']);
             http_response_code(401);
             exit();
         }
-        $DVDId = $_POST['DVDId'];
-        $newQuantity = $_POST['newQuantity'];
+        $DVDId = $data['DVDId'];
+        $newQuantity = $data['newQuantity'];
         $updated = $admin->updateDVDQunty($DVDId, $newQuantity);
         if ($updated) {
             header('Content-Type: application/json');
@@ -150,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    if ($_POST['action'] === "addIntoCart") {
+    if ($action === "addIntoCart") {
         if (!AuthManager::isLoggedIn()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Please Login First']);
@@ -158,8 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(401);
             exit();
         }
-        $DVDId = $_POST['DVDId'];
-        $quantity = $_POST['quantity'];
+        $DVDId = $data['DVDId'];
+        $quantity = $data['quantity'];
         $addedIntoCart = $cart->addDVDIntoCart($DVDId, $quantity);
         if ($addedIntoCart) {
             header('Content-Type: application/json');
@@ -171,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($_POST['action'] === "deleteFromCart") {
+    if ($action === "deleteFromCart") {
         if (!AuthManager::isLoggedIn()) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'Please Login First to delete cart']);
@@ -179,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(401);
             exit();
         }
-        $cartId = $_POST['cartId'];
+        $cartId = $data['cartId'];
         $deletedCart = $cart->deleteDVDFromCart($cartId);
         if ($deletedCart) {
             header('Content-Type: application/json');
@@ -193,6 +197,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/loginstatus') {
+        $userLoggedIn = $auth->loginStatus();
+
+        if ($userLoggedIn) {
+            header('Content-Type: application/json');
+            echo json_encode(['loginStatus' => true]);
+            exit();
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['loginStatus' => false]);
+            exit();
+        }
+
+    }
+
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/logout') {
         $loggedOut = $auth->logout();
 
@@ -221,6 +241,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $items = $home->fetchValues();
         echo json_encode(['items' => $items]);
     }
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/dvds') {
+        $items = $home->fetchValues();
+        echo json_encode(['items' => $items]);
+    }
+
+
 
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/details') {
         if (!empty($_GET["DVDId"])) {

@@ -250,7 +250,7 @@ class Queries extends DB
         }
     }
 
-    public function getDVD()
+    public function getDVDs()
     {
        try{
          //query to retrieve all data from DVD table

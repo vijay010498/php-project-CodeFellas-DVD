@@ -11,7 +11,7 @@ class Home extends Queries
 
     public function fetchValues()
     {
-        return $this->getDVD();       
+        return $this->getDVDs();
     }
 
 }

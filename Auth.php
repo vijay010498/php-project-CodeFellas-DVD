@@ -19,6 +19,10 @@ class Auth extends Queries
         return $this->signInUser($email, $password);
     }
 
+    public function loginStatus() {
+        return AuthManager::isLoggedIn();
+    }
+
     public function logout() {
         return AuthManager::logoutUser();
     }
