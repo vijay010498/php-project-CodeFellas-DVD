@@ -52,6 +52,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        let loginStatus = false;
         const loginNav = document.getElementById('loginNav');
 
         function updateNavigation(isLoggedIn) {
@@ -63,26 +64,31 @@
         }
 
         function checkLoginStatus() {
-            const loginXhr = new XMLHttpRequest();
-            loginXhr.open('GET', '/group-project-DVD-store/API.php/loginstatus', true);
+            if (loginStatus) {
+                updateNavigation(true);
+            } else {
+                const loginXhr = new XMLHttpRequest();
+                loginXhr.open('GET', '/group-project-DVD-store/API.php/loginstatus', true);
 
-            loginXhr.onreadystatechange = function () {
-                if (loginXhr.readyState === XMLHttpRequest.DONE) {
-                    if (loginXhr.status === 200) {
-                        const response = JSON.parse(loginXhr.responseText);
-                        console.log()
-                        if (response.loginStatus) {
-                            updateNavigation(true);
+                loginXhr.onreadystatechange = function () {
+                    if (loginXhr.readyState === XMLHttpRequest.DONE) {
+                        if (loginXhr.status === 200) {
+                            const response = JSON.parse(loginXhr.responseText);
+                            if (response.loginStatus) {
+                                loginStatus = true;
+                                updateNavigation(true);
+                            } else {
+                                updateNavigation(false);
+                            }
                         } else {
-                            updateNavigation(false);
+                            console.error('Error:', loginXhr.status);
                         }
-                    } else {
-                        console.error('Error:', loginXhr.status);
                     }
-                }
-            };
+                };
 
-            loginXhr.send();
+                loginXhr.send();
+            }
+
         }
 
         window.logout = function () {
