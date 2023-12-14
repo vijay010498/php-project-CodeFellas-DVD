@@ -22,7 +22,7 @@ class Queries extends DB
             }
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO Users (firstName, lastName, email, password, address, phoneNumber, userType) VALUES (:firstName, :lastName, :email, :password,:address, :phoneNumber, 1)"; // 0 =  customer, 1 = Admin
+            $sql = "INSERT INTO Users (firstName, lastName, email, password, address, phoneNumber, userType) VALUES (:firstName, :lastName, :email, :password,:address, :phoneNumber,0)"; // 0 =  customer, 1 = Admin
             $stmt = $this->pdoConnection->prepare($sql);
 
             $stmt->bindParam(':firstName', $firstName);
