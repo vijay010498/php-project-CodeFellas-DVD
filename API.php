@@ -1,6 +1,7 @@
 <?php
 
 
+
 require_once("Admin.php");
 require_once("Auth.php");
 require_once("AuthManager.php");
@@ -246,6 +247,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/dvds') {
         $items = $home->fetchValues();
         echo json_encode(['items' => $items]);
+    }
+
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/genres') {
+        $genres = $home->fetchGenres();
+        echo json_encode(['genres' => $genres]);
     }
 
 

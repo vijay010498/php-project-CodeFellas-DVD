@@ -253,22 +253,51 @@ class Queries extends DB
         }
     }
 
-    public function getDVDs()
+    public function getDVDs($genre = null)
     {
+        echo $genre;
         try {
-            //query to retrieve all data from DVD table
-            $query = 'SELECT D.DVDId, D.Title,D.Price,D.imageURL, Genres.genreName
-         FROM DVDS AS D
-         JOIN Genres ON D.GenreId = Genres.GenreId;';
-            $results = $this->pdoConnection->query($query);
-            $rows = $results->fetchAll(PDO::FETCH_ASSOC);
-            return $rows;
 
+            $query = 'SELECT D.DVDId, D.Title, D.Price, D.imageURL, Genres.genreName
+            FROM DVDS AS D
+            JOIN Genres ON D.GenreId = Genres.GenreId';
+
+            if ($genre !== null) {
+                $query .= ' WHERE Genres.genreName LIKE :genre';
+            }
+
+            $statement = $this->pdoConnection->prepare($query);
+
+            if ($genre !== null) {
+                $statement->bindParam(':genre', $genre, PDO::PARAM_STR);
+            }
+
+            $statement->execute();
+            $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $rows;
         } catch (PDOException $e) {
-            echo("getDVDDetails: " . $e->getMessage());
+            echo("getDVDs: " . $e->getMessage());
             return json_encode(['error' => 'An error occurred while fetching items.']);
         }
     }
+
+    public function getGenres()
+    {
+        try {
+
+            $query = 'SELECT * from Genres';
+
+            $statement = $this->pdoConnection->prepare($query);
+
+            $statement->execute();
+            $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $rows;
+        } catch (PDOException $e) {
+            echo("getDVDs: " . $e->getMessage());
+            return json_encode(['error' => 'An error occurred while fetching items.']);
+        }
+    }
+
 
     public function getDVDOne($dvd_id)
     {

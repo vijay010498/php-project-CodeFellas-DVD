@@ -8,11 +8,13 @@ include('headers.php');
 
 <div class="container">
     <div class="row">
-        <div id="dvdContainer" class="row">
-        </div>
+        <label for="genreFilter">Filter by Genre:</label>
+        <select id="genreFilter">
+            <option value="">All Genres</option>
+        </select>
     </div>
+    <div id="dvdContainer" class="row"></div>
 </div>
-
 <?php
 include('footers.php');
 ?>
@@ -71,7 +73,9 @@ include('footers.php');
 
 <script>
     const existingCartItemsMap = new Map();
-    (() => {
+
+
+    const getCartItems = ()=> {
         const cartItemsHTTP = new XMLHttpRequest();
         cartItemsHTTP.onreadystatechange = function () {
             if (this.readyState === 4) {
@@ -90,7 +94,9 @@ include('footers.php');
         };
         cartItemsHTTP.open("GET", '/group-project-DVD-store/API.php/cart', true);
         cartItemsHTTP.send();
-    })();
+    }
+
+    getCartItems();
 
 
     function addToCart(DVDId, quantity) {
@@ -152,7 +158,8 @@ include('footers.php');
         removeFromCartXhr.send(JSON.stringify(data));
     }
 
-    function addOrDeleteCartItem(DVDId, quantity) {
+    function addOrDeleteCartItem(DVDId, quantity = 1) {
+        console.log("addOrDeleteCartItem",existingCartItemsMap);
         if (existingCartItemsMap.has(DVDId)) {
             // remove
             removeFromCart(DVDId);
@@ -162,23 +169,27 @@ include('footers.php');
 
     }
 
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (this.readyState === 4) {
-            if (this.status === 200) {
-                const response = JSON.parse(this.responseText);
 
-                if (response.hasOwnProperty('items')) {
-                    const dvds = response.items;
-                    const dvdContainer = document.getElementById('dvdContainer');
+    function fetchDVDsByGenre(genre) {
+        const xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    const response = JSON.parse(this.responseText);
 
-                    dvdContainer.innerHTML = '';
+                    if (response.hasOwnProperty('items')) {
+                        let dvds = response.items;
+                        const dvdContainer = document.getElementById('dvdContainer');
 
-                    dvds.forEach(function (dvd) {
-                        if (existingCartItemsMap.has(dvd.DVDId)) {
-                            console.log("exists");
-                            // remove from cart
-                            const cardHtml = `
+                        dvdContainer.innerHTML = '';
+
+                        if (genre) {
+                            dvds = dvds.filter(dvd => dvd.genreName === genre );
+                        }
+                        dvds.forEach(function (dvd) {
+                            if (existingCartItemsMap.has(dvd.DVDId)) {
+                                // remove from cart
+                                const cardHtml = `
                             <div class="product">
                                 <img class="product-img" src="${dvd.imageURL}" alt="${dvd.Title}">
                                 <div class="product-block">
@@ -190,10 +201,9 @@ include('footers.php');
                             </div>
                         `;
 
-                            dvdContainer.insertAdjacentHTML('beforeend', cardHtml);
-                        } else {
-
-                            const cardHtml = `
+                                dvdContainer.insertAdjacentHTML('beforeend', cardHtml);
+                            } else {
+                                const cardHtml = `
                             <div class="product">
                                 <img class="product-img" src="${dvd.imageURL}" alt="${dvd.Title}">
                                 <div class="product-block">
@@ -205,19 +215,59 @@ include('footers.php');
                             </div>
                         `;
 
-                            dvdContainer.insertAdjacentHTML('beforeend', cardHtml);
-                        }
-                    });
+                                dvdContainer.insertAdjacentHTML('beforeend', cardHtml);
+                            }
+                        });
+                    } else {
+                        const errorMessage = '<p>Error: No DVD items found.</p>';
+                        document.getElementById('dvdContainer').innerHTML = errorMessage;
+                    }
                 } else {
-                    const errorMessage = '<p>Error: No DVD items found.</p>';
-                    document.getElementById('dvdContainer').innerHTML = errorMessage;
+                    console.error("Error: " + this.status);
                 }
-            } else {
-                console.error("Error: " + this.status);
             }
-        }
-    };
-    xmlHttp.open("GET", '/group-project-DVD-store/API.php/dvds', true);
-    xmlHttp.send();
+        };
+
+        let url = '/group-project-DVD-store/API.php/dvds';
+        xmlHttp.open("GET", url, true);
+        xmlHttp.send();
+    }
+
+    document.getElementById('genreFilter').addEventListener('change', function () {
+        const selectedGenre = this.value;
+        fetchDVDsByGenre(selectedGenre);
+    });
+
+
+
+    function fetchGenres() {
+        const genreSelect = document.getElementById('genreFilter');
+
+        const genresHTTP = new XMLHttpRequest();
+        genresHTTP.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    const response = JSON.parse(this.responseText);
+                    if (response.hasOwnProperty('genres')) {
+                        const genres = response.genres;
+                        genres.forEach((genre) => {
+                            const option = document.createElement('option');
+                            option.value = genre.genreName;
+                            option.textContent = genre.genreName;
+                            genreSelect.appendChild(option);
+                        });
+                    }
+                } else {
+                    console.error("Error: " + this.status);
+                }
+            }
+        };
+        genresHTTP.open("GET", '/group-project-DVD-store/API.php/genres', true);
+        genresHTTP.send();
+    }
+
+
+    fetchGenres();
+    fetchDVDsByGenre('');
 </script>
 

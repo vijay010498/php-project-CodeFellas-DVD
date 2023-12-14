@@ -14,5 +14,11 @@ class Home extends Queries
         return $this->getDVDs();
     }
 
+
+    public function fetchGenres()
+    {
+        return $this->getGenres();
+    }
+
 }
 ?>
