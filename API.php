@@ -21,9 +21,10 @@ $invoice = new Invoice();
 
 // POST Apis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $data = json_decode(file_get_contents("php://input"), true);
     $action = $data['action'];
-exit;
+
     if ($action === "signUpNewUser") {
         $firstName = $data['firstName'];
         $lastName = $data['lastName'];
@@ -43,7 +44,6 @@ exit;
             http_response_code(500);
         }
     }
-
 
 
     if ($action === "signInUsr") {
@@ -97,7 +97,7 @@ exit;
         $stockQuantity = $data['stockQuantity'];
         $imageURL = $data['imageURL'];
         $description = $data['description'];
-        $created = $admin->createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL,$description);
+        $created = $admin->createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL, $description);
         if ($created) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'DVD Created']);
@@ -200,15 +200,31 @@ exit;
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/loginstatus') {
-        $userLoggedIn = $auth->loginStatus();
+        $isAdmin = $auth->loginStatus();
 
-        if ($userLoggedIn) {
+        if ($isAdmin) {
             header('Content-Type: application/json');
             echo json_encode(['loginStatus' => true]);
             exit();
         } else {
             header('Content-Type: application/json');
             echo json_encode(['loginStatus' => false]);
+            exit();
+        }
+
+    }
+
+
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/adminStatus') {
+        $isAdmin = $auth->adminStatus();
+
+        if ($isAdmin) {
+            header('Content-Type: application/json');
+            echo json_encode(['$isAdmin' => true]);
+            exit();
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['$isAdmin' => false]);
             exit();
         }
 
@@ -249,19 +265,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
 
-
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/details') {
         if (!empty($_GET["DVDId"])) {
-            $detail = $details->dvdDetails($_GET["DVDId"]);            
+            $detail = $details->dvdDetails($_GET["DVDId"]);
             echo json_encode(['detail' => $detail]);
-        }
-        else{
+        } else {
             header('Content-Type: application/json');
-            echo json_encode(['message' => 'Please provide DVD id']);            
+            echo json_encode(['message' => 'Please provide DVD id']);
             http_response_code(401);
             exit();
-        }      
-        
+        }
+
     }
 
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/checkoutAndPlaceOrder') {
@@ -273,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit();
         } else {
             $userId = AuthManager::getUserID();
-            if($userId != null){
+            if ($userId != null) {
                 $orderId = $userOrder->checkoutAndPlaceOrder($userId);
                 $invoice->getpdfDetails($userId, $orderId);
             } else {
@@ -283,7 +297,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
     }
-
 
 
 }

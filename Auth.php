@@ -27,4 +27,8 @@ class Auth extends Queries
         return AuthManager::logoutUser();
     }
 
+    public function adminStatus() {
+        return AuthManager::isAdmin();
+    }
+
 }

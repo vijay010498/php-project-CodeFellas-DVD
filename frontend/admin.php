@@ -1,201 +1,41 @@
 <?php
-    include('headers.php');
+include('headers.php');
 ?>
 
-<script>
-     function formToggle(form) {
-        const DVDForm = document.getElementById('dvdForm');
-        const GenreForm = document.getElementById('genreForm');
-
-        if (form === 'dvd') {
-            GenreForm.style.display = 'none';
-            DVDForm.style.display = 'block';
-            <?php $_SESSION['formToggle'] = 'dvd'; ?>
-        } else {
-            GenreForm.style.display = 'block';
-            DVDForm.style.display = 'none';
-            <?php $_SESSION['formToggle'] = 'genre'; ?>
-        }
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
     }
 
-    addDvdBtn.addEventListener('click', function (event) {
-            console.log("add DVD Button-clicked");
-            event.preventDefault();
-
-            const dvdTitle = document.getElementById('title').value;
-            const dvdGennreId = document.getElementById('genreId').value;
-            const dvdPrice = document.getElementById('price').value;
-            const dvdStockQuantity = document.getElementById('stockQuantity').value;
-            const dvdImageUrl = document.getElementById('imageURL').value;
-            const dvdDescription = document.getElementById('description').value;
-
-            const addDvdXhr = new XMLHttpRequest();
-            addDvdXhr.open('POST', '/group-project-DVD-store/API.php', true);
-            addDvdXhr.setRequestHeader('Content-Type', 'application/json');
-
-            addDvdXhr.onreadystatechange = function () {
-                if (addDvdXhr.readyState === XMLHttpRequest.DONE) {
-                    if (addDvdXhr.status === 200) {
-                        // window.location.replace("admin.php");
-                    } else {
-                        console.error('Error:', addDvdXhr.status);
-                    }
-                }
-            };
-
-            const addDvdRequestBody = JSON.stringify({
-                action: 'createDVD',
-                Title: dvdTitle,
-                GenreId: dvdGennreId,
-                Price: dvdPrice,
-                stockQuantity: dvdStockQuantity,
-                imageURL: dvdImageUrl,
-                description: dvdDescription
-            });
-
-            addDvdXhr.send(addDvdRequestBody);
-        });
-
-        addgenrebtn.addEventListener('click', function (event) {
-            console.log("add Genre Button-clicked");
-            event.preventDefault();
-
-            const dvdGenreName = document.getElementById('genreName').value;
-
-            const addGenreXhr = new XMLHttpRequest();
-            addGenreXhr.open('POST', '/group-project-DVD-store/API.php', true);
-            addGenreXhr.setRequestHeader('Content-Type', 'application/json');
-
-            addGenreXhr.onreadystatechange = function () {
-                if (addGenreXhr.readyState === XMLHttpRequest.DONE) {
-                    if (addGenreXhr.status === 200) {
-                        window.location.replace("admin.php");
-                    } else {
-                        console.error('Error:', addGenreXhr.status);
-                    }
-                }
-            };
-
-            const addGenreRequestBody = JSON.stringify({
-                action: 'createGenre',
-                genreName: dvdGenreName,
-    
-            });
-
-            addGenreXhr.send(addGenreRequestBody);
-        });
-        // api url
-const api_url = 
-	"/group-project-DVD-store/API.php/dvds";
-
-// Defining async function
-async function getapi(url) {
-
-	// Storing response
-	const response = await fetch(url);
-
-	// Storing data in form of JSON
-	var data = await response.json();
-	console.log(data);
-	if (response) {
-		hideloader();
-	}
-	show(data);
-}
-// Calling that async function
-getapi(api_url);
-
-// Function to hide the loader
-function hideloader() {
-	document.getElementById('loading').style.display = 'none';
-}
-// Function to define innerHTML for HTML table
-function show(data) {
-	let tab = 
-		`<tr>
-		<th>Title</th>
-		<th>Genre ID</th>
-		<th>Price</th>
-		<th>Stock Quantity</th>
-        <th>Image URL</th>
-		<th>Description</th>
-        <th>Action</th>
-		<th>Action</th>
-		</tr>`;
-
-	// Loop to access all rows 
-	for (let r of data.list) {
-		tab += `<tr> 
-	<td>${r.Title} </td>
-	<td>${r.GenreId}</td>
-	<td>${r.Price}</td> 
-	<td>${r.StockQuantity}</td>		
-    <td>${r.imageURL}</td> 
-	<td>${r.description}</td>	
-    <td>
-            <button onclick="editDVDQuanity('${r.id}')">Edit</button>
-            <button onclick="deleteDVD('${r.id}')">Delete</button>
-    </td>
-</tr>`;
-	}
-	// Setting innerHTML as tab variable
-	document.getElementById("dvd").innerHTML = tab;
-
-}
-
-// Function to handle the delete button click
-function deleteDVD(id) {
-    const confirmation = confirm('Are you sure you want to delete this DVD?');
-
-    if (confirmation) {
-        const deleteDvdXhr = new XMLHttpRequest();
-        deleteDvdXhr.open('DELETE', '/group-project-DVD-store/API.php', true);
-        deleteDvdXhr.setRequestHeader('Content-Type', 'application/json');
-
-        deleteDvdXhr.onreadystatechange = function () {
-            if (deleteDvdXhr.readyState === XMLHttpRequest.DONE) {
-                if (deleteDvdXhr.status === 200) {
-                    // Refresh the table or update the UI as needed
-                    getapi(api_url);
-                } else {
-                    console.error('Error:', deleteDvdXhr.status);
-                }
-            }
-        };
-
-        const deleteDvdRequestBody = JSON.stringify({
-            action: 'deleteDVD',
-            id: id
-        });
-
-        deleteDvdXhr.send(deleteDvdRequestBody);
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
     }
-}
 
-</script>
-
-
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
 
 <div class="container">
     <h1 class="d-flex align-items-center justify-content-center">Admin Panel</h1>
-    <?php
-        session_start();
-        $formToggle = isset($_POST['formToggle']) ? $_POST['formToggle'] : 'dvd';
-        $_SESSION['formToggle'] = $formToggle;
-    ?>
+
     <form method="post">
         <div class="container d-flex align-items-center justify-content-center">
             <div class="col-md-6">
                 <label for="formToggle" class="form-label">Select a table:</label>
-                <select name="formToggle" id="formToggle" class="form-select" onchange="this.form.submit()">
-                    <option value="dvd" <?php if ($formToggle === 'dvd') echo 'selected'; ?>>DVDs</option>
-                    <option value="genre" <?php if ($formToggle === 'genre') echo 'selected'; ?>>Genres</option>
+                <select name="formToggle" id="formToggle" class="form-select">
+                    <option value="dvd" selected>DVDs</option>
+                    <option value="genre">Genres</option>
                 </select>
             </div>
         </div>
     </form>
 
-    <form id="dvdForm" method="post" <?php if ($formToggle === 'dvd') echo 'style="display:block;"'; else echo 'style="display:none;"'; ?>>
+    <form id="dvdForm" method="post" style="display:block;">
         <div class="container mt-5">
             <h2 class="mb-4 text-center">Add DVD</h2>
 
@@ -243,7 +83,8 @@ function deleteDVD(id) {
 
             <div class="mb-3 row justify-content-center">
                 <div class="col-sm-6">
-                    <button id="addDvdBtn" type="submit" class="btn btn-primary" name="action" value="add_dvd">Add DVD</button>
+                    <button id="addDvdBtn" type="submit" class="btn btn-primary" name="action" value="add_dvd">Add DVD
+                    </button>
                 </div>
             </div>
         </div>
@@ -252,9 +93,8 @@ function deleteDVD(id) {
     </form>
 
 
-
-    <form id="genreForm" method="post" <?php if ($formToggle === 'genre') echo 'style="display:block;"'; else echo 'style="display:none;"'; ?>>
-        <div class="container mt-5">    
+    <form id="genreForm" method="post" style="display:none;">
+        <div class="container mt-5">
             <h2 class="mb-4 text-center">Add Genre</h2>
             <div class="mb-3 row justify-content-center">
                 <label for="genreName" class="col-sm-2 col-form-label">Genre Name:</label>
@@ -264,7 +104,9 @@ function deleteDVD(id) {
             </div>
             <div class="mb-3 row justify-content-center">
                 <div class="col-sm-6">
-                    <button id="addgenrebtn" type="submit" class="btn btn-primary" name="action" value="add_genre">Add Genre</button>
+                    <button id="addgenrebtn" type="submit" class="btn btn-primary" name="action" value="add_genre">Add
+                        Genre
+                    </button>
                 </div>
             </div>
         </div>
@@ -273,5 +115,203 @@ function deleteDVD(id) {
 
 </main>
 <?php
-    include('footers.php');
+include('footers.php');
 ?>
+
+<script>
+    function formToggle() {
+        const formToggleValue = document.getElementById('formToggle').value;
+        const DVDForm = document.getElementById('dvdForm');
+        const GenreForm = document.getElementById('genreForm');
+
+        if (formToggleValue === 'dvd') {
+            GenreForm.style.display = 'none';
+            DVDForm.style.display = 'block';
+        } else {
+            GenreForm.style.display = 'block';
+            DVDForm.style.display = 'none';
+        }
+    }
+
+    document.getElementById('formToggle').addEventListener('change', formToggle);
+
+
+    (() => {
+        const adminLoginXhr = new XMLHttpRequest();
+        adminLoginXhr.open('GET', '/group-project-DVD-store/API.php/adminStatus', true);
+
+        adminLoginXhr.onreadystatechange = function () {
+            if (adminLoginXhr.readyState === XMLHttpRequest.DONE) {
+                if (adminLoginXhr.status === 200) {
+                    const response = JSON.parse(adminLoginXhr.responseText);
+                    if (!response.$isAdmin) {
+                        window.location.replace('login.php');
+                    }
+                } else {
+                    console.error('Error:', adminLoginXhr.status);
+                }
+            }
+        };
+
+        adminLoginXhr.send();
+    })();
+
+
+    document.getElementById('addDvdBtn').addEventListener('click', function (event) {
+        console.log("add DVD Button-clicked");
+        event.preventDefault();
+
+        const dvdTitle = document.getElementById('title').value;
+        const dvdGennreId = document.getElementById('genreId').value;
+        const dvdPrice = document.getElementById('price').value;
+        const dvdStockQuantity = document.getElementById('stockQuantity').value;
+        const dvdImageUrl = document.getElementById('imageURL').value;
+        const dvdDescription = document.getElementById('description').value;
+
+        const addDvdXhr = new XMLHttpRequest();
+        addDvdXhr.open('POST', '/group-project-DVD-store/API.php', true);
+        addDvdXhr.setRequestHeader('Content-Type', 'application/json');
+
+        addDvdXhr.onreadystatechange = function () {
+            if (addDvdXhr.readyState === XMLHttpRequest.DONE) {
+                if (addDvdXhr.status === 200) {
+                    // window.location.replace("admin.php");
+                } else {
+                    console.error('Error:', addDvdXhr.status);
+                }
+            }
+        };
+
+        const addDvdRequestBody = JSON.stringify({
+            action: 'createDVD',
+            Title: dvdTitle,
+            GenreId: dvdGennreId,
+            Price: dvdPrice,
+            stockQuantity: dvdStockQuantity,
+            imageURL: dvdImageUrl,
+            description: dvdDescription
+        });
+
+        addDvdXhr.send(addDvdRequestBody);
+    });
+
+    document.getElementById('addgenrebtn').addEventListener('click', function (event) {
+        console.log("add Genre Button-clicked");
+        event.preventDefault();
+
+        const dvdGenreName = document.getElementById('genreName').value;
+
+        const addGenreXhr = new XMLHttpRequest();
+        addGenreXhr.open('POST', '/group-project-DVD-store/API.php', true);
+        addGenreXhr.setRequestHeader('Content-Type', 'application/json');
+
+        addGenreXhr.onreadystatechange = function () {
+            if (addGenreXhr.readyState === XMLHttpRequest.DONE) {
+                if (addGenreXhr.status === 200) {
+                    window.location.replace("admin.php");
+                } else {
+                    console.error('Error:', addGenreXhr.status);
+                }
+            }
+        };
+
+        const addGenreRequestBody = JSON.stringify({
+            action: 'createGenre',
+            genreName: dvdGenreName,
+
+        });
+
+        addGenreXhr.send(addGenreRequestBody);
+    });
+
+    async function getDvds() {
+        const xmlHttp = new XMLHttpRequest();
+
+        xmlHttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    const response = JSON.parse(this.responseText);
+
+                    if (response.hasOwnProperty('items')) {
+
+                        const dvds = response.items;
+
+                        const dvdTable = document.getElementById('dvd');
+
+                        dvdTable.innerHTML = '';
+
+                        let tableHTML = `
+                    <tr>
+                        <th>Title</th>
+                        <th>Genre Name</th>
+                        <th>Price</th>
+                        <th>Image URL</th>
+                        <th>Action</th>
+                    </tr>
+                `;
+
+                        dvds.forEach(function (dvd) {
+                            console.log(dvd);
+                            tableHTML += `
+        <tr>
+            <td>${dvd.Title}</td>
+            <td>${dvd.genreName}</td>
+            <td>$${dvd.Price}</td>
+            <td><img src="${dvd.imageURL}" alt="DVD Image" style="width: 100px; height: auto;"></td>
+            <td>
+                <button onclick="editDVDQuanity('${dvd.id}')">Edit</button>
+                <button onclick="deleteDVD('${dvd.id}')">Delete</button>
+            </td>
+        </tr>
+    `
+                        });
+
+                        dvdTable.innerHTML = tableHTML;
+                    } else {
+                        const errorMessage = '<p>Error: No DVD items found.</p>';
+                        document.getElementById('dvd').innerHTML = errorMessage;
+                    }
+                } else {
+                    console.error("Error: " + this.status);
+                }
+            }
+        };
+
+        xmlHttp.open("GET", '/group-project-DVD-store/API.php/dvds', true);
+
+        xmlHttp.send();
+    }
+
+
+    getDvds();
+
+
+    function deleteDVD(id) {
+        const confirmation = confirm('Are you sure you want to delete this DVD?');
+
+        if (confirmation) {
+            const deleteDvdXhr = new XMLHttpRequest();
+            deleteDvdXhr.open('POST', '/group-project-DVD-store/API.php', true);
+            deleteDvdXhr.setRequestHeader('Content-Type', 'application/json');
+
+            deleteDvdXhr.onreadystatechange = function () {
+                if (deleteDvdXhr.readyState === XMLHttpRequest.DONE) {
+                    if (deleteDvdXhr.status === 200) {
+                        getDvds();
+                    } else {
+                        console.error('Error:', deleteDvdXhr.status);
+                    }
+                }
+            };
+
+            const deleteDvdRequestBody = JSON.stringify({
+                action: 'deleteDVD',
+                DVDId: id
+            });
+
+            deleteDvdXhr.send(deleteDvdRequestBody);
+        }
+    }
+
+
+</script>
