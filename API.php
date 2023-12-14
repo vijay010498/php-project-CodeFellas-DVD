@@ -265,6 +265,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
 
+    if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/genres') {
+        $genres = $home->fetchGenres();
+        echo json_encode(['genres' => $genres]);
+    }
+
+
+
     if ($_SERVER['REQUEST_URI'] === '/group-project-DVD-store/API.php/details') {
         if (!empty($_GET["DVDId"])) {
             $detail = $details->dvdDetails($_GET["DVDId"]);
