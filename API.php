@@ -23,7 +23,7 @@ $invoice = new Invoice();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
     $action = $data['action'];
-
+exit;
     if ($action === "signUpNewUser") {
         $firstName = $data['firstName'];
         $lastName = $data['lastName'];
@@ -96,8 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Price = $data['Price'];
         $stockQuantity = $data['stockQuantity'];
         $imageURL = $data['imageURL'];
-
-        $created = $admin->createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL);
+        $description = $data['description'];
+        $created = $admin->createNewDVD($Title, $GenreId, $Price, $stockQuantity, $imageURL,$description);
         if ($created) {
             header('Content-Type: application/json');
             echo json_encode(['message' => 'DVD Created']);
